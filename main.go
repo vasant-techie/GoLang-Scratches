@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"golang.org/x/ini"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -36,7 +35,7 @@ func updateAWSCredentials(accessKey, secretKey, sessionToken string) error {
 	credsFile := expandHomeDir(awsCredentialsFile)
 
 	// Read the existing credentials file
-	data, err := ioutil.ReadFile(credsFile)
+	data, err := os.ReadFile(credsFile)
 	if err != nil {
 		return err
 	}
