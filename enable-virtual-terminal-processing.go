@@ -3,30 +3,27 @@ package main
 import (
     "fmt"
     "os"
-    "syscall"
-    "unsafe"
+
+    "golang.org/x/sys/windows"
 )
 
 const (
     ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
-    STD_OUTPUT_HANDLE                  = -11 & 0xFFFFFFFF
 )
 
 func enableVirtualTerminalProcessing() error {
-    handle := syscall.Handle(os.Stdout.Fd())
+    handle := windows.Handle(os.Stdout.Fd())
     var mode uint32
 
     // Get the current console mode
-    r, _, e := syscall.Syscall(syscall.GetProcAddress(syscall.LoadLibrary("kernel32.dll"), "GetConsoleMode"), 2, uintptr(handle), uintptr(unsafe.Pointer(&mode)), 0)
-    if r == 0 {
-        return e
+    if err := windows.GetConsoleMode(handle, &mode); err != nil {
+        return err
     }
 
     // Enable the virtual terminal processing mode
     mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING
-    r, _, e = syscall.Syscall(syscall.GetProcAddress(syscall.LoadLibrary("kernel32.dll"), "SetConsoleMode"), 2, uintptr(handle), uintptr(mode), 0)
-    if r == 0 {
-        return e
+    if err := windows.SetConsoleMode(handle, mode); err != nil {
+        return err
     }
 
     return nil
